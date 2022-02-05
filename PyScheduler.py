@@ -31,11 +31,11 @@ def sendResponse(jsonRequest):
 		booked_charge=float(dict_EV_message_id_capacity)*float(jsonRequest["message"]["target_soc"])-float(jsonRequest["message"]["soc_at_arrival"])/100
 		available_energy=float(dict_EV_message_id["max_ch_pow_ac"])*(int(jsonRequest["message"]["actual_departure_time"])-(int(jsonRequest["message"]["arrival_time"])))
 		charged_energy=available_energy
-		charged_0=float(dict_EV_message_id_capacity)*int(jsonRequest["message"]["soc_at_arrival"])/100
+		charged_0=float(dict_EV_message_id_capacity)*float(jsonRequest["message"]["soc_at_arrival"])/100
 		if available_energy>=booked_charge:
 			charging_time=3600*charged_energy/float(dict_EV_message_id["max_ch_pow_ac"])
 		csvstr=(str(jsonRequest["message"]["arrival_time"]))+","+str(charged_0)+"\n"
-		csvstr+=str(charging_time)+str(jsonRequest["message"]["arrival_time"])+","+str(charged_energy)+str(charged_0)+"\n"
+		csvstr+=str(charging_time+float(jsonRequest["message"]["arrival_time"]))+","+str(charged_energy+charged_0)+"\n"
 		with open("test.csv",'w') as f:
 			f.write(csvstr)
 		r = requests.post("http://parsec2.unicampania.it:10020/postanswer", files={'file': open('test.csv','r')})
@@ -47,7 +47,7 @@ def getRequest():
 	#pairs = json_object.items()
 	message=json_object['message']
 	subject=""
-	#print(json_object)
+	print(json_object)
 	if message!="no new message": #ho dovuto mettere questo if perché se non lo mettessi
 		subject=message['subject'] #quando il messaggio è no new message non ha subject e quindi
 									#mi va in errore perché non è un dict
